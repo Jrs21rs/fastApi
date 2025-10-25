@@ -4,11 +4,17 @@ FROM python:3.10-slim
 # Directorio de trabajo
 WORKDIR /app
 
+# Instalar dependencias del sistema necesarias para TensorFlow
+RUN apt-get update && apt-get install -y \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copiar requirements
 COPY app/requirements.txt .
 
-# Instalar dependencias
-RUN pip install --no-cache-dir -r requirements.txt
+# Actualizar pip e instalar dependencias
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copiar aplicación
 COPY app/ ./app/

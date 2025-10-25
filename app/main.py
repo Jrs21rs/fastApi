@@ -170,7 +170,7 @@ async def predict_strabismus(file: UploadFile = File(...)):
         return result
 
     except Exception as e:
-        print(f"❌ Error en predicción: {e}")
+        print(f" Error en predicción: {e}")
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error procesando imagen: {str(e)}")
@@ -180,7 +180,7 @@ async def health_check():
     return {
         "status": "healthy" if MODEL_LOADED else "error",
         "model_loaded": MODEL_LOADED,
-        "model_input_shape": input_details[0]['shape'] if MODEL_LOADED else None,
+        "model_input_shape": input_details[0]['shape'].tolist() if MODEL_LOADED and input_details else None,
         "timestamp": time.time()
     }
 
@@ -190,7 +190,7 @@ async def root():
         "message": "Strabismus Detection API",
         "status": "running",
         "model_loaded": MODEL_LOADED,
-        "model_input_shape": input_details[0]['shape'] if MODEL_LOADED else None,
+        "model_input_shape": input_details[0]['shape'].tolist() if MODEL_LOADED and input_details else None,
         "version": "1.0.0"
     }
 

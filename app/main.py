@@ -7,6 +7,8 @@ from PIL import Image
 import io
 import time
 import os
+import requests
+from datetime import datetime
 
 app = FastAPI(title="Strabismus Model API")
 
@@ -111,6 +113,38 @@ def preprocess_image(image: Image.Image) -> np.ndarray:
     print(f" Imagen preprocesada: {image_array.shape}")
     return image_array
 
+def guardar_en_springboot(documento_identidad: int, resultado: dict):
+    """Envía el resultado al backend de Spring Boot según tu entidad Evaluacion"""
+    try:
+        # URL de tu API de Spring Boot - AJUSTA ESTA URL
+        springboot_url = "http://localhost:8080/api/evaluaciones"
+
+        # Payload ajustado para tu entidad Evaluacion
+        payload = {
+            "documentoIdentidad": documento_identidad,
+            "resultado": resultado["tieneEstrabismo"],
+            "confianzaPrediccion": float(resultado["confianza"]),
+            "fechaEvaluacion": datetime.now().strftime("%Y-%m-%d")  # Formato LocalDate
+        }
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        print(f"📤 Enviando evaluación a Spring Boot: {payload}")
+
+        response = requests.post(springboot_url, json=payload, headers=headers, timeout=10)
+
+        if response.status_code == 200 or response.status_code == 201:
+            print(f"✅ Evaluación guardada en Spring Boot - documentoIdentidad: {documento_identidad}")
+            return True
+        else:
+            print(f"⚠️ Error guardando en Spring Boot: {response.status_code} - {response.text}")
+            return False
+
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error de conexión con Spring Boot: {e}")
+        return False
 @app.on_event("startup")
 async def startup_event():
     print(" Iniciando Strabismus Detection API...")
@@ -120,8 +154,12 @@ async def startup_event():
     else:
         print(" API iniciada pero modelo no cargado")
 
-@app.post("/predict")
-async def predict_strabismus(file: UploadFile = File(...)):
+@app.post("/predict/{documento_identidad}")
+async def predict_strabismus(
+        documento_identidad: int,
+        file: UploadFile = File(...),
+        save_result: bool = True
+):
     if not MODEL_LOADED:
         raise HTTPException(status_code=500, detail="Modelo no cargado")
 
@@ -165,6 +203,8 @@ async def predict_strabismus(file: UploadFile = File(...)):
             "tiempoProcesamiento": f"{processing_time}ms",
             "mensaje": "Estrabismo detectado" if has_strabismus else "No se detectó estrabismo"
         }
+        if save_result:
+         guardar_en_springboot(documento_identidad, result)
 
         print(f"📊 Predicción completada: {result}")
         return result

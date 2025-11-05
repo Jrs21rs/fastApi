@@ -117,7 +117,7 @@ def guardar_en_springboot(documento_identidad: int, resultado: dict):
     """Envía el resultado al backend de Spring Boot según tu entidad Evaluacion"""
     try:
         # URL de tu API de Spring Boot - AJUSTA ESTA URL
-        springboot_url = "http://localhost:8080/api/evaluaciones"
+        springboot_url = "https://reconocimiento-estrabismo.onrender.com/api/evaluaciones"
 
         # Payload ajustado para tu entidad Evaluacion
         payload = {

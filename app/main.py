@@ -116,7 +116,7 @@ def preprocess_image(image: Image.Image) -> np.ndarray:
 def guardar_en_springboot(documento_identidad: int, resultado: dict):
     """Envía el resultado al backend de Spring Boot según tu entidad Evaluacion"""
     try:
-        # URL de tu API de Spring Boot - AJUSTA ESTA URL
+        # URL de tu API de Spring Boot
         springboot_url = "https://reconocimiento-estrabismo.onrender.com/api/evaluaciones"
 
         # Payload ajustado para tu entidad Evaluacion
@@ -209,6 +209,9 @@ async def predict_strabismus(
         print(f"📊 Predicción completada: {result}")
         return result
 
+    except HTTPException:
+        # Re-raise HTTPException sin modificar (FastAPI lo maneja correctamente)
+        raise
     except Exception as e:
         print(f" Error en predicción: {e}")
         import traceback

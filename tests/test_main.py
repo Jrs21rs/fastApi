@@ -19,11 +19,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'app'))
 import main
 
 
+@pytest.mark.unit
 class TestLoadModel:
     """Tests para la función load_model()"""
 
     @patch('os.path.exists')
-    @patch('tensorflow.lite.Interpreter')
+    @patch('main.tf.lite.Interpreter')
     def test_load_model_success(self, mock_interpreter_class, mock_exists, reset_model_state):
         """Test que el modelo se carga correctamente cuando existe"""
         # Configurar mocks
@@ -64,7 +65,7 @@ class TestLoadModel:
         assert main.MODEL_LOADED is False
 
     @patch('os.path.exists')
-    @patch('tensorflow.lite.Interpreter')
+    @patch('main.tf.lite.Interpreter')
     def test_load_model_exception(self, mock_interpreter_class, mock_exists, reset_model_state):
         """Test que maneja excepciones al cargar el modelo"""
         # Configurar mocks
@@ -79,7 +80,7 @@ class TestLoadModel:
         assert main.MODEL_LOADED is False
 
     @patch('os.path.exists')
-    @patch('tensorflow.lite.Interpreter')
+    @patch('main.tf.lite.Interpreter')
     def test_load_model_checks_multiple_paths(self, mock_interpreter_class, mock_exists, reset_model_state):
         """Test que verifica múltiples rutas en orden"""
         # Configurar mock para que la segunda ruta exista
@@ -104,6 +105,7 @@ class TestLoadModel:
         assert mock_interpreter_class.called
 
 
+@pytest.mark.unit
 class TestPreprocessImage:
     """Tests para la función preprocess_image()"""
 
@@ -152,6 +154,7 @@ class TestPreprocessImage:
         assert np.min(result) >= 0.0
 
 
+@pytest.mark.unit
 class TestGuardarEnSpringBoot:
     """Tests para la función guardar_en_springboot()"""
 
@@ -228,6 +231,7 @@ class TestGuardarEnSpringBoot:
         assert result is False
 
 
+@pytest.mark.unit
 class TestEndpoints:
     """Tests para los endpoints de la API"""
 
@@ -367,6 +371,7 @@ class TestEndpoints:
         assert "model_input_shape" in data
 
 
+@pytest.mark.unit
 class TestEdgeCases:
     """Tests para casos límite y edge cases"""
 

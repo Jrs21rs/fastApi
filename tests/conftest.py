@@ -10,15 +10,23 @@ import sys
 import os
 
 # Mock TensorFlow ANTES de cualquier importación para evitar carga lenta
-# Esto debe estar al inicio del archivo
-_mock_tf = MagicMock()
-_mock_tf.lite = MagicMock()
-_mock_tf.lite.Interpreter = MagicMock()
-_mock_tf.__version__ = "2.15.0"
-
-sys.modules['tensorflow'] = _mock_tf
-sys.modules['tensorflow.lite'] = _mock_tf.lite
-sys.modules['tensorflow.lite.Interpreter'] = _mock_tf.lite.Interpreter
+# Solo se aplica si TensorFlow no está instalado o para pruebas unitarias
+# Las pruebas de integración pueden usar el modelo real si está disponible
+try:
+    import tensorflow as tf
+    # TensorFlow está disponible, no hacer mock
+    TF_AVAILABLE = True
+except ImportError:
+    # TensorFlow no está disponible, usar mock
+    _mock_tf = MagicMock()
+    _mock_tf.lite = MagicMock()
+    _mock_tf.lite.Interpreter = MagicMock()
+    _mock_tf.__version__ = "2.15.0"
+    
+    sys.modules['tensorflow'] = _mock_tf
+    sys.modules['tensorflow.lite'] = _mock_tf.lite
+    sys.modules['tensorflow.lite.Interpreter'] = _mock_tf.lite.Interpreter
+    TF_AVAILABLE = False
 
 # Agregar el directorio app al path para importar módulos
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'app'))
